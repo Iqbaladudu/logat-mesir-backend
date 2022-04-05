@@ -1,12 +1,10 @@
-from django.db import models
-
 from django.db.models import Model
-from django.contrib.auth.models import User
 from django.db.models import CharField, SlugField, TextField, DateTimeField, PositiveIntegerField, FileField, URLField, CASCADE, ForeignKey, ManyToManyField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from .fields import OrderField
 from django.template.loader import render_to_string
+from django.conf import settings
 
 class Subject(Model):
     title = CharField(max_length=200)
@@ -17,10 +15,10 @@ class Subject(Model):
         return self.title
 
 class Course(Model):
-    owner = ForeignKey(User,
+    owner = ForeignKey(settings.AUTH_USER_MODEL,
     related_name='courses_created', on_delete=CASCADE)
     subject = ForeignKey(Subject, related_name='courses', on_delete=CASCADE)
-    student = ManyToManyField(User, related_name='courses_joined', blank=True)
+    student = ManyToManyField(settings.AUTH_USER_MODEL, related_name='courses_joined', blank=True)
     title = CharField(max_length=200)
     slug = SlugField(max_length=200, unique=True)
     overview = TextField()
@@ -41,7 +39,7 @@ class Module(Model):
         return f'{self.order}. {self.title}'
 
 class ItemBase(Model):
-    owner = ForeignKey(User,
+    owner = ForeignKey(settings.AUTH_USER_MODEL,
     related_name='%(class)s_related', on_delete=CASCADE)
     title = CharField(max_length=200)
     created = DateTimeField(auto_now_add=True)
